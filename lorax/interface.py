@@ -9,7 +9,7 @@ def args_parser():
 def main():
 
     print("\nStarting Lorax server on http://localhost:8000/")
-    uvicorn.run("lorax.lorax_app:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("lorax.lorax_app:app", host="0.0.0.0", port=8000, reload=True, log_level="warning")
 
 # if __name__ == "__main__":
 #     main()
