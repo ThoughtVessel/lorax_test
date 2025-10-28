@@ -16,6 +16,7 @@ conda activate treesequences
 
 2. Install dependencies:
 ```bash
+or pip install -r requirements.txt --no-deps
 pip install -r requirements.txt
 ```
 

@@ -21,7 +21,7 @@ from langchain.agents import AgentExecutor, create_react_agent
 from langchain_community.agent_toolkits.load_tools import load_tools
 from lorax.models import Model
 from lorax.prompts import Prompt
-from lorax.react_agent import run
+# Moved import to avoid circular dependency - see generalInfoTool function
 from langchain_community.retrievers import ArxivRetriever
 
 load_dotenv()
@@ -129,6 +129,8 @@ def generalInfoTool(question, attributes=None):
     """
     This function is used to get the general information about the tskit and treesequence.
     """
+    # Import here to avoid circular dependency with react_agent.py
+    from lorax.react_agent import run
 
     try:
         start = time.time()

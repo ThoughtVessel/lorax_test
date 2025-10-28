@@ -18,10 +18,12 @@ class Prompt:
     """
     
     # Dictionary mapping supported agent types to their prompt file paths
+    # Paths are relative to this module's location
+    _BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     SUPPORTED_AGENTS = {
-        "code_generation": "prompts/code_generation.json",
-        "visualization": "prompts/visualization.txt",
-        "planner": "prompts/planner.json"  
+        "code_generation": os.path.join(_BASE_DIR, "prompts/code_generation.json"),
+        "visualization": os.path.join(_BASE_DIR, "prompts/visualization.txt"),
+        "planner": os.path.join(_BASE_DIR, "prompts/planner.json")
     }
     
     def __init__(self, agent_type: str, prompt_path: Optional[str] = None):
@@ -105,10 +107,36 @@ class Prompt:
     
     def get_prompt_text(self) -> Union[str, List[Dict[str, str]]]:
         """Get the prompt text.
-        
+
         Returns:
             Either a string for simple prompts or a list of message dictionaries
             for structured prompts
         """
         return self._prompt_text
-    
+
+    # ============================================================================
+    # ADDED: Methods to make Prompt class compatible with LangChain usage patterns
+    # These were missing from the original implementation, causing errors when
+    # Prompt objects were passed to ChatPromptTemplate.from_messages()
+    # ============================================================================
+
+    def __iter__(self):
+        """Make Prompt iterable for use with ChatPromptTemplate.from_messages().
+
+        Converts JSON format with 'role' and 'content' keys to tuples of (role, content)
+        that LangChain expects.
+
+        For JSON prompts: yields tuples like ("system", "content text")
+        For text prompts: yields a single tuple ("system", "text content")
+        """
+        if isinstance(self._prompt_text, list):
+            # JSON prompts: convert list of dicts to tuples for LangChain
+            for msg in self._prompt_text:
+                if isinstance(msg, dict) and 'role' in msg and 'content' in msg:
+                    yield (msg['role'], msg['content'])
+                else:
+                    yield msg
+        else:
+            # Text prompts: return as single system message
+            yield ("system", self._prompt_text)
+
